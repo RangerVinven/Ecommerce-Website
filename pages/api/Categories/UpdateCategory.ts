@@ -36,6 +36,13 @@ export default function handler(
 			resolve();
 
 		} catch (error: any) {
+
+			// Checks if the new category collides with an existing one
+			if(error.code === "P2002") {
+				res.status(500).json({ Success: false, Error: "Category already exists" })
+				reject();
+			}
+
 			res.status(500).json({ Success: false, Error: error })
 			reject();
 		}
