@@ -14,7 +14,7 @@ export default function handler(
 	return new Promise<void>(async (resolve, reject) => {
 	
 		// Checks for missing parameters
-		if(!req.body.ID || !req.body.ProductName || !req.body.Price || !req.body.Description || !req.body.Category || (typeof req.body.IsAvaliable === null) || !req.body.ThumbnailImage) {
+		if(!req.body.OldProductName || !req.body.ProductName || !req.body.Price || !req.body.Description || !req.body.Category || (typeof req.body.IsAvaliable === null) || !req.body.ThumbnailImage) {
 			res.status(400).json({ Success: false, Error: "Missing parameters" });
 			reject();
 		}
@@ -22,7 +22,7 @@ export default function handler(
 		try {
 			await prisma.products.update({
 				where: {
-					ID: req.body.ID
+					ProductName: req.body.OldProductName
 				},
 				data: {
 					ProductName: req.body.ProductName,

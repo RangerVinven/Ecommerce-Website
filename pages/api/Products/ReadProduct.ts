@@ -16,7 +16,6 @@ export default function handler(
 		try {
 			const products = await prisma.products.findMany({
 				select: {
-					ID: true,
 					ProductName: true,
 					Price: true,
 					Description: true,

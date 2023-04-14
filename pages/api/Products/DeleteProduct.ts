@@ -14,15 +14,15 @@ export default function handler(
 	return new Promise<void>(async (resolve, reject) => {
 	
 		// Checks for missing parameters
-		if(!req.body.ID) {
-			res.status(400).json({ Success: false, Error: "Missing ID" })
+		if(!req.body.ProductName) {
+			res.status(400).json({ Success: false, Error: "Missing ProductName" })
 			reject();
 		}
 
 		try {
 			await prisma.products.delete({
 				where: {
-					ID: req.body.ID
+					ProductName: req.body.ProductName
 				}
 			})
 
@@ -33,7 +33,7 @@ export default function handler(
 
 			// Checks if the product ID doesn't exist
 			if(error.code === "P2025") {
-				res.status(500).json({ Success: false, Error: "Product ID doesn't exist" })
+				res.status(500).json({ Success: false, Error: "Product Name doesn't exist" })
 				reject();
 			}		
 

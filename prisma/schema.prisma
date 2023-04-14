@@ -8,16 +8,14 @@ datasource db {
 }
 
 model Baskets {
-  ProductID  Int       @db.UnsignedInt
-  CustomerID Int       @db.UnsignedInt
-  Quantity   Int       @default(1) @db.UnsignedTinyInt
-  ID         Int       @unique(map: "ID_UNIQUE") @db.UnsignedInt
-  Customers  Customers @relation(fields: [CustomerID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKBasketsCustomerID")
-  Products   Products  @relation(fields: [ProductID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKBasketsProductID")
+  ProductName String    @db.VarChar(100)
+  CustomerID  Int       @db.UnsignedInt
+  Quantity    Int       @default(1) @db.UnsignedTinyInt
+  ID          String    @unique(map: "ID_UNIQUE") @db.VarChar(200)
+  Customers   Customers @relation(fields: [CustomerID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKBasketsCustomerID")
 
-  @@id([ProductID, CustomerID])
   @@index([CustomerID], map: "FKBasketsCustomerID_idx")
-  @@index([ProductID], map: "FKBasketsProductID_idx")
+  @@index([ProductName], map: "FKBasketsProductID_idx")
 }
 
 model Categories {
@@ -30,10 +28,10 @@ model Customers {
   FirstName String      @db.VarChar(30)
   LastName  String      @db.VarChar(45)
   Email     String      @unique(map: "Email_UNIQUE") @db.VarChar(80)
-  Password  String      @db.VarChar(100)
+  Password  String      @db.VarChar(128)
   Baskets   Baskets[]
-  Reviews   Reviews[]
-  Wishlists Wishlists[]
+  Reviews   Reviews[]   @ignore
+  Wishlists Wishlists[] @ignore
 }
 
 model DiscountCodes {
@@ -51,51 +49,54 @@ model ProductOptionChoices {
 }
 
 model ProductOptions {
-  ID                   Int                   @id @unique(map: "ID_UNIQUE") @default(autoincrement()) @db.UnsignedInt
-  ProductID            Int                   @db.UnsignedInt
+  ID                   Int                   @unique(map: "ID_UNIQUE") @default(autoincrement()) @db.UnsignedInt
+  ProductName          String                @db.VarChar(100)
   OptionName           String                @db.VarChar(20)
   ProductOptionChoices ProductOptionChoices?
-  Products             Products              @relation(fields: [ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKProductOptionsProductID")
+  Products             Products              @relation(fields: [ProductName], references: [ProductName], onDelete: NoAction, onUpdate: NoAction, map: "FKProductOptionsProductName")
+
+  @@index([ProductName], map: "FKProductOptionsProductName_idx")
 }
 
 model ProductPictures {
-  ID             Int      @id @unique(map: "ID_UNIQUE") @default(autoincrement()) @db.UnsignedInt
-  ProductID      Int
+  ID             Int      @unique(map: "ID_UNIQUE") @default(autoincrement()) @db.UnsignedInt
+  ProductName    String   @db.VarChar(100)
   Picture        Bytes    @db.Blob
   OrderInDisplay Int      @db.TinyInt
-  Products       Products @relation(fields: [ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKProductPicturesProductID")
+  Products       Products @relation(fields: [ProductName], references: [ProductName], onDelete: NoAction, onUpdate: NoAction, map: "FKProductPicturesProductName")
+
+  @@index([ProductName], map: "FKProductPicturesProductName_idx")
 }
 
 model Products {
-  ID              Int              @id @unique(map: "ID_UNIQUE") @default(autoincrement()) @db.UnsignedInt
-  ProductName     String           @db.VarChar(100)
-  Price           Decimal          @db.Decimal(10, 2)
-  Description     String           @db.Text
-  Category        String?          @db.VarChar(50)
-  IsAvaliable     Int              @default(1) @db.TinyInt
-  ThumbnailImage  Bytes            @db.Blob
-  Baskets         Baskets[]
-  ProductOptions  ProductOptions?
-  ProductPictures ProductPictures?
-  Categories      Categories?      @relation(fields: [Category], references: [Category], onDelete: NoAction, onUpdate: NoAction, map: "FKProductsCategory")
-  Reviews         Reviews[]
-  Wishlists       Wishlists[]
+  ProductName     String            @id @unique(map: "ProductName_UNIQUE") @db.VarChar(100)
+  Price           Decimal           @db.Decimal(10, 2)
+  Description     String            @db.Text
+  Category        String?           @db.VarChar(50)
+  IsAvaliable     Int               @default(1) @db.TinyInt
+  ThumbnailImage  String?           @db.VarChar(10)
+  ProductOptions  ProductOptions[]
+  ProductPictures ProductPictures[]
+  Categories      Categories?       @relation(fields: [Category], references: [Category], onDelete: NoAction, onUpdate: NoAction, map: "FKProductsCategory")
+  Reviews         Reviews[]         @ignore
+  Wishlists       Wishlists[]       @ignore
 
   @@index([Category], map: "Category_idx")
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model Reviews {
-  ID            Int       @id @unique(map: "ID_UNIQUE") @default(autoincrement()) @db.UnsignedInt
   NumberOfStars Int       @db.UnsignedTinyInt
   CustomerID    Int       @db.UnsignedInt
   DateOfReview  DateTime  @db.Date
   Review        String?   @db.Text
-  ProductID     Int       @db.UnsignedInt
+  ProductName   String    @db.VarChar(100)
   Customers     Customers @relation(fields: [CustomerID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKReviewsCustomerID")
-  Products      Products  @relation(fields: [ProductID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKReviewsProductID")
+  Products      Products  @relation(fields: [ProductName], references: [ProductName], onDelete: NoAction, onUpdate: NoAction, map: "FKReviewsProductName")
 
   @@index([CustomerID], map: "CustomerID_idx")
-  @@index([ProductID], map: "ProductID_idx")
+  @@index([ProductName], map: "FKReviewsProductName_idx")
+  @@ignore
 }
 
 model Settings {
@@ -104,14 +105,15 @@ model Settings {
   Setting_Value String @map("Setting Value") @db.Text
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model Wishlists {
-  ProductID  Int       @db.UnsignedInt
-  CustomerID Int       @db.UnsignedInt
-  ID         Int       @db.UnsignedInt
-  Customers  Customers @relation(fields: [CustomerID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKWishlistsCustomerID")
-  Products   Products  @relation(fields: [ProductID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKWishlistsProductID")
+  ProductName String    @db.VarChar(100)
+  CustomerID  Int       @db.UnsignedInt
+  ID          Int       @db.UnsignedInt
+  Customers   Customers @relation(fields: [CustomerID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKWishlistsCustomerID")
+  Products    Products  @relation(fields: [ProductName], references: [ProductName], onDelete: NoAction, onUpdate: NoAction, map: "FKWishlistsProductName")
 
-  @@id([ProductID, CustomerID])
   @@index([CustomerID], map: "FKWishlistsCustomerID_idx")
-  @@index([ProductID], map: "FKWishlistsProductID_idx")
+  @@index([ProductName], map: "FKWishlistsProductID_idx")
+  @@ignore
 }
