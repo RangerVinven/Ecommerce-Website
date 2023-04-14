@@ -30,6 +30,13 @@ export default function handler(
 			resolve();
 
 		} catch (error: any) {
+
+			// Checks if the category doesn't exist
+			if(error.code === "P2025") {
+				res.status(500).json({ Success: false, Error: "Category doesn't exist" })
+				reject();
+			}		
+
 			res.status(500).json({ Success: false, Error: error })
 			reject();
 		}
