@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Baskets {
+  ProductID  Int       @db.UnsignedInt
+  CustomerID Int       @db.UnsignedInt
+  Quantity   Int       @default(1) @db.UnsignedTinyInt
+  ID         Int       @unique(map: "ID_UNIQUE") @db.UnsignedInt
+  Customers  Customers @relation(fields: [CustomerID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKBasketsCustomerID")
+  Products   Products  @relation(fields: [ProductID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKBasketsProductID")
+
+  @@id([ProductID, CustomerID])
+  @@index([CustomerID], map: "FKBasketsCustomerID_idx")
+  @@index([ProductID], map: "FKBasketsProductID_idx")
+}
+
+model Categories {
+  Category String     @id @unique(map: "Category_UNIQUE") @db.VarChar(50)
+  Products Products[]
+}
+
+model Customers {
+  ID        Int         @id @unique(map: "ID_UNIQUE") @default(autoincrement()) @db.UnsignedInt
+  FirstName String      @db.VarChar(30)
+  LastName  String      @db.VarChar(45)
+  Email     String      @unique(map: "Email_UNIQUE") @db.VarChar(80)
+  Password  String      @db.VarChar(100)
+  Baskets   Baskets[]
+  Reviews   Reviews[]
+  Wishlists Wishlists[]
+}
+
+model DiscountCodes {
+  Code               String   @id @unique(map: "ID_UNIQUE") @db.VarChar(10)
+  DiscountPercentage Int      @db.UnsignedTinyInt
+  ExpiryDate         DateTime @db.Date
+}
+
+model ProductOptionChoices {
+  ID             Int            @id @unique(map: "ID_UNIQUE") @default(autoincrement()) @db.UnsignedInt
+  ProductOption  Int            @db.UnsignedInt
+  Choice         String         @unique(map: "Choice_UNIQUE") @db.VarChar(10)
+  IsAvaliable    Int            @default(1) @db.TinyInt
+  ProductOptions ProductOptions @relation(fields: [ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKProductOptionChoicesProductOption")
+}
+
+model ProductOptions {
+  ID                   Int                   @id @unique(map: "ID_UNIQUE") @default(autoincrement()) @db.UnsignedInt
+  ProductID            Int                   @db.UnsignedInt
+  OptionName           String                @db.VarChar(20)
+  ProductOptionChoices ProductOptionChoices?
+  Products             Products              @relation(fields: [ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKProductOptionsProductID")
+}
+
+model ProductPictures {
+  ID             Int      @id @unique(map: "ID_UNIQUE") @default(autoincrement()) @db.UnsignedInt
+  ProductID      Int
+  Picture        Bytes    @db.Blob
+  OrderInDisplay Int      @db.TinyInt
+  Products       Products @relation(fields: [ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKProductPicturesProductID")
+}
+
+model Products {
+  ID              Int              @id @unique(map: "ID_UNIQUE") @default(autoincrement()) @db.UnsignedInt
+  ProductName     String           @db.VarChar(100)
+  Price           Decimal          @db.Decimal(10, 2)
+  Description     String           @db.Text
+  Category        String?          @db.VarChar(50)
+  IsAvaliable     Int              @default(1) @db.TinyInt
+  ThumbnailImage  Bytes            @db.Blob
+  Baskets         Baskets[]
+  ProductOptions  ProductOptions?
+  ProductPictures ProductPictures?
+  Categories      Categories?      @relation(fields: [Category], references: [Category], onDelete: NoAction, onUpdate: NoAction, map: "FKProductsCategory")
+  Reviews         Reviews[]
+  Wishlists       Wishlists[]
+
+  @@index([Category], map: "Category_idx")
+}
+
+model Reviews {
+  ID            Int       @id @unique(map: "ID_UNIQUE") @default(autoincrement()) @db.UnsignedInt
+  NumberOfStars Int       @db.UnsignedTinyInt
+  CustomerID    Int       @db.UnsignedInt
+  DateOfReview  DateTime  @db.Date
+  Review        String?   @db.Text
+  ProductID     Int       @db.UnsignedInt
+  Customers     Customers @relation(fields: [CustomerID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKReviewsCustomerID")
+  Products      Products  @relation(fields: [ProductID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKReviewsProductID")
+
+  @@index([CustomerID], map: "CustomerID_idx")
+  @@index([ProductID], map: "ProductID_idx")
+}
+
+model Settings {
+  ID            Int    @id @unique(map: "ID_UNIQUE") @default(autoincrement()) @db.UnsignedInt
+  Setting_Name  String @unique(map: "Setting Name_UNIQUE") @map("Setting Name") @db.VarChar(45)
+  Setting_Value String @map("Setting Value") @db.Text
+}
+
+model Wishlists {
+  ProductID  Int       @db.UnsignedInt
+  CustomerID Int       @db.UnsignedInt
+  ID         Int       @db.UnsignedInt
+  Customers  Customers @relation(fields: [CustomerID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKWishlistsCustomerID")
+  Products   Products  @relation(fields: [ProductID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKWishlistsProductID")
+
+  @@id([ProductID, CustomerID])
+  @@index([CustomerID], map: "FKWishlistsCustomerID_idx")
+  @@index([ProductID], map: "FKWishlistsProductID_idx")
+}
