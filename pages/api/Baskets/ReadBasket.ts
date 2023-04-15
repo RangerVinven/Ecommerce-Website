@@ -25,6 +25,7 @@ export default function handler(
                     CustomerID: req.body.CustomerID
                 },
                 select: {
+                    ID: true,
                     ProductName: true,
                     Quantity: true
                 }
