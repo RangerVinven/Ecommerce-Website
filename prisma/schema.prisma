@@ -11,8 +11,9 @@ model Baskets {
   ProductName String    @db.VarChar(100)
   CustomerID  Int       @db.UnsignedInt
   Quantity    Int       @default(1) @db.UnsignedTinyInt
-  ID          String    @unique(map: "ID_UNIQUE") @db.VarChar(200)
+  ID          String    @id @unique(map: "ID_UNIQUE") @db.VarChar(200)
   Customers   Customers @relation(fields: [CustomerID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKBasketsCustomerID")
+  Products    Products  @relation(fields: [ProductName], references: [ProductName], onDelete: NoAction, onUpdate: NoAction, map: "FKBasketsProductName")
 
   @@index([CustomerID], map: "FKBasketsCustomerID_idx")
   @@index([ProductName], map: "FKBasketsProductID_idx")
@@ -75,6 +76,7 @@ model Products {
   Category        String?           @db.VarChar(50)
   IsAvaliable     Int               @default(1) @db.TinyInt
   ThumbnailImage  String?           @db.VarChar(10)
+  Baskets         Baskets[]
   ProductOptions  ProductOptions[]
   ProductPictures ProductPictures[]
   Categories      Categories?       @relation(fields: [Category], references: [Category], onDelete: NoAction, onUpdate: NoAction, map: "FKProductsCategory")
