@@ -43,19 +43,21 @@ model DiscountCodes {
 }
 
 model ProductOptionChoices {
-  ID             Int            @id @unique(map: "ID_UNIQUE") @default(autoincrement()) @db.UnsignedInt
+  ID             Int            @unique(map: "ID_UNIQUE") @default(autoincrement()) @db.UnsignedInt
   ProductOption  Int            @db.UnsignedInt
-  Choice         String         @unique(map: "Choice_UNIQUE") @db.VarChar(10)
+  Choice         String         @unique(map: "Choice_UNIQUE") @db.VarChar(15)
   IsAvaliable    Int            @default(1) @db.TinyInt
-  ProductOptions ProductOptions @relation(fields: [ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKProductOptionChoicesProductOption")
+  ProductOptions ProductOptions @relation(fields: [ProductOption], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKProductOptionChoicesProductOption")
+
+  @@index([ProductOption], map: "FKProductOptionChoicesProductOption_idx")
 }
 
 model ProductOptions {
-  ID                   Int                   @unique(map: "ID_UNIQUE") @default(autoincrement()) @db.UnsignedInt
-  ProductName          String                @db.VarChar(100)
-  OptionName           String                @db.VarChar(20)
-  ProductOptionChoices ProductOptionChoices?
-  Products             Products              @relation(fields: [ProductName], references: [ProductName], onDelete: NoAction, onUpdate: NoAction, map: "FKProductOptionsProductName")
+  ID                   Int                    @unique(map: "ID_UNIQUE") @default(autoincrement()) @db.UnsignedInt
+  ProductName          String                 @db.VarChar(100)
+  OptionName           String                 @db.VarChar(20)
+  ProductOptionChoices ProductOptionChoices[]
+  Products             Products               @relation(fields: [ProductName], references: [ProductName], onDelete: NoAction, onUpdate: NoAction, map: "FKProductOptionsProductName")
 
   @@index([ProductName], map: "FKProductOptionsProductName_idx")
 }
