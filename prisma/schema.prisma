@@ -36,7 +36,7 @@ model Customers {
 }
 
 model DiscountCodes {
-  Code               String    @id @unique(map: "ID_UNIQUE") @db.VarChar(10)
+  Code               String    @id @unique(map: "ID_UNIQUE") @db.VarChar(15)
   DiscountPercentage Int       @db.UnsignedTinyInt
   ExpiryDate         DateTime? @db.Date
   StartDate          DateTime? @db.Date
