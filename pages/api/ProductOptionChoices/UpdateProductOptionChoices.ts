@@ -14,7 +14,7 @@ export default function handler(
 ) {
     return new Promise<void>(async (resolve, reject) => {
 		
-        if(!req.body.ProductOptions) {
+        if(!req.body.ID || !req.body.ProductOptions || !req.body.Choice || (typeof !req.body.IsAvaliable === null)) {
             res.status(400).json({ Success: false, Error: "Missing Parameters" });
             reject();
         }
