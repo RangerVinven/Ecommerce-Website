@@ -95,7 +95,7 @@ model Reviews {
   DateOfReview  DateTime  @db.Date
   Review        String?   @db.Text
   ProductName   String    @db.VarChar(100)
-  ID            String    @unique(map: "ID_UNIQUE") @db.VarChar(150)
+  ID            Int       @id @unique(map: "ID_UNIQUE") @default(autoincrement()) @db.UnsignedInt
   Customers     Customers @relation(fields: [CustomerID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKReviewsCustomerID")
   Products      Products  @relation(fields: [ProductName], references: [ProductName], onDelete: NoAction, onUpdate: NoAction, map: "FKReviewsProductName")
 
