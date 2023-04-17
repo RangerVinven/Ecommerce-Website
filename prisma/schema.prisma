@@ -78,7 +78,7 @@ model Products {
   Description     String            @db.Text
   Category        String?           @db.VarChar(50)
   IsAvaliable     Int               @default(1) @db.TinyInt
-  ThumbnailImage  String?           @db.VarChar(10)
+  ThumbnailImage  String?           @db.VarChar(100)
   Baskets         Baskets[]
   ProductOptions  ProductOptions[]
   ProductPictures ProductPictures[]
