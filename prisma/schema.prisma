@@ -65,7 +65,7 @@ model ProductOptions {
 model ProductPictures {
   ID             Int      @unique(map: "ID_UNIQUE") @default(autoincrement()) @db.UnsignedInt
   ProductName    String   @db.VarChar(100)
-  Picture        Bytes    @db.Blob
+  Picture        String   @db.Text
   OrderInDisplay Int      @db.TinyInt
   Products       Products @relation(fields: [ProductName], references: [ProductName], onDelete: NoAction, onUpdate: NoAction, map: "FKProductPicturesProductName")
 
@@ -112,7 +112,7 @@ model Settings {
 model Wishlists {
   ProductName String    @db.VarChar(100)
   CustomerID  Int       @db.UnsignedInt
-  ID          String    @unique(map: "ID_UNIQUE") @db.VarChar(150)
+  ID          Int       @id @unique(map: "ID_UNIQUE") @default(autoincrement()) @db.UnsignedInt
   Customers   Customers @relation(fields: [CustomerID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FKWishlistsCustomerID")
   Products    Products  @relation(fields: [ProductName], references: [ProductName], onDelete: NoAction, onUpdate: NoAction, map: "FKWishlistsProductName")
 
