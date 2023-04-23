@@ -2,6 +2,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { prisma } from "../../../utility/PrismaClient"
 
+import { generateHashedPassword } from '../../../utility/HashPassword';
+
 type Data = {
 	Success: boolean
 	Error?: string
@@ -17,7 +19,11 @@ export default function handler(
 		if(!req.body.FirstName || !req.body.LastName || !req.body.Email || !req.body.Password) {
 			res.status(400).json({ Success: false, Error: "Missing parameters" });
 			reject();
+
+			return;
 		}
+
+		const hashedPassword = generateHashedPassword(req.body.Password);
 
 		try {
 			await prisma.customers.create({
@@ -25,7 +31,7 @@ export default function handler(
 					FirstName: req.body.FirstName,
 					LastName: req.body.LastName,
 					Email: req.body.Email,
-					Password: req.body.Password,
+					Password: hashedPassword,
 				}
 			})
 			res.status(200).json({ Success: true })
